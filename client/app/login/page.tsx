@@ -7,11 +7,32 @@ const LoginPage = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        // TODO: Įgyvendinti prisijungimo logiką
-        console.log("Prisijungiama su:", { email, password });
+
+        try {
+            const res = await fetch("http://localhost:5000/api/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.message || "Prisijungimo klaida");
+            }
+
+            localStorage.setItem("token", data.token); // galėsi naudoti apsaugotiems puslapiams
+            alert("Prisijungimas sėkmingas");
+            window.location.href = "/dashbord"; // arba naudok Next.js router push
+        } catch (err: any) {
+            alert("Klaida: " + err.message);
+        }
     };
+
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
